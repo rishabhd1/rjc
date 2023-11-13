@@ -9,6 +9,7 @@ interface IPaymentForm {
   from: string;
   amount: number;
   description: string;
+  status?: string;
 }
 
 function Payment(): React.ReactElement {
@@ -22,26 +23,46 @@ function Payment(): React.ReactElement {
   const {
     register,
     handleSubmit,
+    reset,
+    getValues,
     formState: { errors },
   } = useForm<IPaymentForm>();
   const onSubmit: SubmitHandler<IPaymentForm> = async (data) => {
     setError([]);
 
+    apiCall(data);
+  };
+
+  const submitError = async (error: string) => {
+    setError([]);
+
+    const values = getValues();
+
+    const payload = {
+      ...values,
+      status: error,
+    };
+
+    console.log(payload);
+
+    apiCall(payload);
+  };
+
+  const apiCall = async (data: IPaymentForm) => {
     try {
       const response = await axios.post("http://localhost:3000/payment", data);
-
       console.log(response);
-      setError([]);
+      reset();
     } catch (err: AxiosError) {
       console.log(err);
 
-      if (err.response.data.statusCode === 400) {
+      if (err?.response?.data.statusCode === 400) {
         setError(err.response.data.message);
       }
-      if (err.response.data.statusCode === 401) {
+      if (err?.response?.data.statusCode === 401) {
         navigate("/login");
       }
-      if (err.response.data.statusCode === 400) {
+      if (err?.response?.data.statusCode === 500) {
         setError(err.response.data.message);
       }
     }
@@ -100,6 +121,12 @@ function Payment(): React.ReactElement {
         </div>
         <button type="submit" className="btn btn-primary">
           Send
+        </button>
+        <button onClick={() => submitError("401")} className="btn btn-primary">
+          401
+        </button>
+        <button onClick={() => submitError("500")} className="btn btn-primary">
+          500
         </button>
       </div>
     </form>
