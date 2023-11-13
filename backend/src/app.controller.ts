@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  Post,
-  Query,
-  Req,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Body, Controller, Post, UnauthorizedException } from '@nestjs/common';
 import { AppService } from './app.service';
 import { Payment } from './app.dto';
 
